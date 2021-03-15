@@ -11,10 +11,10 @@ class Prod{
     }
 
     add_prod(){
-        return pool.query('INSERT INTO products(title, price, image, quantity) VALUES ($1, $2, $3, $4);', [this.title, this.price, this.image, this.quantity]);
+        return pool.query('INSERT INTO products(title, price, image, quantity, id) VALUES ($1, $2, $3, $4, (SELECT max(id)+1 FROM products) );', [this.title, this.price, this.image, this.quantity]);
     }
     static get_all(){
-        return pool.query('SELECT * FROM products');
+        return pool.query('SELECT * FROM products;');
     }
 
 };
@@ -28,7 +28,7 @@ class Cart{
     }
 
     add_to_cart(){
-        const q1 = pool.query('SELECT * FROM products WHERE id = $1', [this.item_id]);
+        const q1 = pool.query('SELECT * FROM products WHERE id = $1;', [this.item_id]);
         
         q1.then(res => {
             const tuple = res.rows;
@@ -48,6 +48,10 @@ class Cart{
             }
         })
         .catch(err => console.log(err));
+    }
+
+    static get_all(){
+        return pool.query('SELECT p.title, p.image, p.price, c.quantity FROM cart c inner join products p on c.item_id = p.id;');
     }
 
 }
