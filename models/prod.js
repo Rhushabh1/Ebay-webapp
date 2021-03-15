@@ -10,7 +10,7 @@ module.exports = class Prod{
     }
 
     add_prod(){
-        return pool.query('INSERT INTO products(title, price, image, quantity) VALUES ($1, $2, $3, $4);', [this.title, this.price, this.image, this.quantity]);
+        return pool.query('INSERT INTO products(title, price, image, quantity, id) VALUES ($1, $2, $3, $4, (SELECT max(id)+1 from products));', [this.title, this.price, this.image, this.quantity]);
     }
     static get_all(){
         return pool.query('SELECT * FROM products');
