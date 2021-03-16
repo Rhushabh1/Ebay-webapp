@@ -36,42 +36,66 @@ class Cart{
     }
 
     select_from_cart(){
-        return pool.
+        return pool.query('SELECT * FROM cart WHERE user_id = $1 AND item_id = $2;', [this.user_id, this.item_id]);
     }
-    add_to_cart(){
-        const q1 = pool.query('SELECT * FROM products WHERE id = $1;', [this.item_id]);
-        
-        q1.then(res => {
-            const tuple = res.rows;
-            console.log("tuple printed");
-            console.log(tuple);
 
-            if (tuple[0]['quantity'] - this.quantity >= 0) {
-                const q2 = pool.query('UPDATE products SET quantity = quantity - $1 WHERE id = $2; INSERT INTO cart (user_id, item_id, quantity) VALUES ($3, $2, $1) ON DUPLICATE KEY UPDATE quantity = quantity + $1;', [this.quantity, this.item_id, this.user_id]);
-                
-                q2.then(() => {
-                    console.log("return 0");
-                    return 0;
-                })
-                .catch(err => console.log(err));
+    insert_into_cart(){
+        return pool.query('INSERT INTO cart (user_id, item_id, quantity) VALUES ($1, $2, $3);', [this.user_id, this.item_id, this.quantity]);
+    }
 
-            } else {
-                console.log("add to cart failed");
-                return -1;
-            }
-        })
-        .catch(err => console.log(err));
-
-        return 0;
+    update_cart(){
+        return pool.query('UPDATE cart SET quantity = quantity + $3 WHERE user_id = $1 AND item_id = $2;', [this.user_id, this.item_id, this.quantity]);
     }
 
     static get_all(){
-        return pool.query('SELECT p.title, p.image, p.price, c.quantity FROM cart c inner join products p on c.item_id = p.id;');
+        return pool.query('SELECT p.title title, p.image image, p.price price, c.quantity quantity FROM cart c INNER JOIN products p ON c.item_id = p.id;');
+    }
+
+}
+
+class Order{
+
+    constructor( user_id){
+        this.user_id = user_id;
+    }
+
+    fetch_credits(){
+        return pool.query('SELECT credit FROM users WHERE user_id = $1;', [this.user_id]);
+    }
+
+    compute_credits(){
+        return pool.query('WITH details(p, q) AS (SELECT p.price, c.quantity FROM cart c INNER JOIN products p ON c.item_id = p.id WHERE c.user_id = $1) \
+                            SELECT sum(p*q) FROM details;', [this.user_id]);
+    }
+
+    fetch_cart(){
+        return pool.query('SELECT * FROM cart WHERE user_id = $1;', [this.user_id]);
+    }
+
+    empty_cart(){
+        return pool.query('DELETE FROM cart WHERE user_id = $1', [this.user_id]);
+    }
+
+    select_from_order(item_id){
+        return pool.query('SELECT * FROM orders WHERE user_id = $1 AND item_id = $2', [this.user_id, item_id]);
+    }
+
+    insert_into_order(item_id, quantity){
+        return pool.query('INSERT INTO orders (user_id, item_id, quantity) VALUES ($1, $2, $3);', [this.user_id, item_id, quantity]);
+    }
+
+    update_order(item_id, quantity){
+        return pool.query('UPDATE orders SET quantity = quantity + $3 WHERE user_id = $1 AND item_id = $2;', [this.user_id, item_id, quantity]);
+    }
+
+    static get_all(){
+        return pool.query('SELECT p.title title, p.image image, p.price price, o.quantity quantity FROM orders o INNER JOIN products p ON o.item_id = p.id;');
     }
 
 }
 
 module.exports = {
     Prod: Prod,
-    Cart: Cart
+    Cart: Cart,
+    Order: Order
 }
