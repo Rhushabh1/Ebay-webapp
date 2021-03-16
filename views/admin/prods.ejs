@@ -20,7 +20,7 @@
                 </h1>
             </header>
             <div class="card__image">
-                <img src=<%= product_list[i]['image'] %> height="150px" alt=<%= product_list[i]['title'] %>>
+                <img src="<%= product_list[i]['image'] %>" height="150px" alt=<%= product_list[i]['title'] %>>
             </div>
             <div class="card__content">
                 <h3 class="product__price">Price: <%= product_list[i]['price'] %>
@@ -29,7 +29,7 @@
                 </h3>
             </div>
             <div class="card__actions">
-                <form action="http://localhost:3000/cart" method="POST">
+                <form action="http://localhost:3000/prods" method="POST">
                     <button class="btn" type="submit">Add to Cart
                     </button>
                     <input type="hidden" name="product_id" value=<%= product_list[i]['id'] %>>

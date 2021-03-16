@@ -27,17 +27,30 @@ class Cart{
         this.quantity = quantity;
     }
 
+    select_from_prods(){
+        return pool.query('SELECT * FROM products WHERE id = $1;', [this.item_id]);
+    }
+
+    update_prods(){
+        return pool.query('UPDATE products SET quantity = quantity - $1 WHERE id = $2;', [this.quantity, this.item_id]);
+    }
+
+    select_from_cart(){
+        return pool.
+    }
     add_to_cart(){
         const q1 = pool.query('SELECT * FROM products WHERE id = $1;', [this.item_id]);
         
         q1.then(res => {
             const tuple = res.rows;
+            console.log("tuple printed");
             console.log(tuple);
 
             if (tuple[0]['quantity'] - this.quantity >= 0) {
-                const q2 = pool.query('UPDATE products SET quantity = quantity - $1 where id = $2; INSERT INTO cart (user_id, item_id, quantity) VALUES ($3, $2, $1) ON DUPLICATE KEY UPDATE quantity = quantity + $1;', [this.quantity, this.item_id, this.user_id]);
+                const q2 = pool.query('UPDATE products SET quantity = quantity - $1 WHERE id = $2; INSERT INTO cart (user_id, item_id, quantity) VALUES ($3, $2, $1) ON DUPLICATE KEY UPDATE quantity = quantity + $1;', [this.quantity, this.item_id, this.user_id]);
                 
                 q2.then(() => {
+                    console.log("return 0");
                     return 0;
                 })
                 .catch(err => console.log(err));
@@ -48,6 +61,8 @@ class Cart{
             }
         })
         .catch(err => console.log(err));
+
+        return 0;
     }
 
     static get_all(){

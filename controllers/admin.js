@@ -47,11 +47,10 @@ exports.get_prods = (req,res2,next) => {
 
 exports.post_prods = (req,res,next) => {
     const user_id = 1;
-    console.log("1");
     const item_id = req.body.product_id;
-    console.log("2");
     const quantity = 1;
 
+    console.log("1");
     console.log(item_id);
 
     const cart = new Model.Cart( user_id, item_id, quantity );
