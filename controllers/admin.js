@@ -56,6 +56,8 @@ exports.post_prods = (req,res,next) => {
 
     const cart = new Model.Cart( user_id, item_id, quantity );
     const ret = cart.add_to_cart();
+    console.log("ret");
+    console.log(ret);
     if (ret == 0) {
         res.redirect('/cart');
     } else {
