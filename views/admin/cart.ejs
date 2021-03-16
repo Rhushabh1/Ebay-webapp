@@ -9,6 +9,12 @@
 
 <main>
 
+    <h2>Credits available: <%= tot_credits %></h2>
+
+    <form action="http://localhost:3000/cart" method="post">
+        <button type="submit">Buy</button>
+    </form>
+
     <div class="grid">
 
     <% for(var i=0; i<product_list.length; i++) {%>
@@ -27,12 +33,6 @@
                 </h3>
                 <h3 class="product__description">Quantity: <%= product_list[i]['quantity'] %>
                 </h3>
-            </div>
-            <div class="card__actions">
-                <form action="/cart" method="post">
-                    <button class="btn" type="submit">Add to Cart
-                    </button>
-                </form>
             </div>
         </article>
     <% } %>

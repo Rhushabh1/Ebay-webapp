@@ -14,7 +14,7 @@ class Prod{
         return pool.query('INSERT INTO products(title, price, image, quantity, id) VALUES ($1, $2, $3, $4, (SELECT max(id)+1 FROM products) );', [this.title, this.price, this.image, this.quantity]);
     }
     static get_all(){
-        return pool.query('SELECT * FROM products;');
+        return pool.query('SELECT * FROM products ORDER BY id;');
     }
 
 };
@@ -48,7 +48,7 @@ class Cart{
     }
 
     static get_all(){
-        return pool.query('SELECT p.title title, p.image image, p.price price, c.quantity quantity FROM cart c INNER JOIN products p ON c.item_id = p.id;');
+        return pool.query('SELECT p.title title, p.image image, p.price price, c.quantity quantity FROM cart c INNER JOIN products p ON c.item_id = p.id ORDER BY c.item_id;');
     }
 
 }
@@ -65,7 +65,11 @@ class Order{
 
     compute_credits(){
         return pool.query('WITH details(p, q) AS (SELECT p.price, c.quantity FROM cart c INNER JOIN products p ON c.item_id = p.id WHERE c.user_id = $1) \
-                            SELECT sum(p*q) FROM details;', [this.user_id]);
+                            SELECT sum(p*q) total FROM details;', [this.user_id]);
+    }
+
+    debit_credits(credit){
+        return pool.query('UPDATE users SET credit = credit - $1 WHERE user_id = $2;', [credit, this.user_id]);
     }
 
     fetch_cart(){
@@ -89,7 +93,7 @@ class Order{
     }
 
     static get_all(){
-        return pool.query('SELECT p.title title, p.image image, p.price price, o.quantity quantity FROM orders o INNER JOIN products p ON o.item_id = p.id;');
+        return pool.query('SELECT p.title title, p.image image, p.price price, o.quantity quantity FROM orders o INNER JOIN products p ON o.item_id = p.id ORDER BY p.id;');
     }
 
 }
